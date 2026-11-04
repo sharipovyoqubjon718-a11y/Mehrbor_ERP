@@ -297,9 +297,11 @@
             padding: 30px;
             border-radius: 16px;
             width: 100%;
-            max-width: 420px;
+            max-width: 450px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-content h3 {
@@ -329,7 +331,7 @@
             flex-direction: column;
             gap: 8px;
             background: #111827;
-            padding: 10px 12px;
+            padding: 12px;
             border-radius: 8px;
             border: 1px solid #475569;
         }
@@ -349,6 +351,22 @@
             height: 16px;
             accent-color: #ffcc00;
             cursor: pointer;
+        }
+
+        /* Услуби сатҳҳои англисӣ */
+        .sub-levels-box {
+            margin-left: 24px;
+            margin-top: 6px;
+            margin-bottom: 6px;
+            padding-left: 10px;
+            border-left: 2px solid #ffcc00;
+            display: none;
+        }
+
+        .sub-levels-box label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 4px;
         }
 
         .modal-buttons {
@@ -387,14 +405,13 @@
     </style>
 </head>
 <body>
-
     <aside>
         <div class="sidebar-brand">
            <img src="{{ url_for('static', filename='logo_mehrbor.jpg') }}" alt="Mehrbor">
-            <div>
-                <h2>МЕҲРБОР ERP</h2>
-                <p>Маркази Кӯлоб</p>
-            </div>
+           <div>
+               <h2>МЕҲРБОР ERP</h2>
+               <p>Маркази Кӯлоб</p>
+           </div>
         </div>
         <ul class="sidebar-menu">
             <li><a class="active" onclick="switchTab('dashboard', this)">📊 Панели асосӣ</a></li>
@@ -483,7 +500,7 @@
                 </div>
             </div>
 
-            <!-- БАХШИ НАВ: ПАРДОХТИ МОҲОНАҲО -->
+            <!-- БАХШИ 3: ПАРДОХТИ МОҲОНАҲО -->
             <div id="tab-payments" class="tab-content">
                 <div class="panel">
                     <div class="panel-header">
@@ -507,7 +524,7 @@
                 </div>
             </div>
 
-            <!-- БАХШИ 3: СКАННЕРИ КАМЕРА -->
+            <!-- БАХШИ 4: СКАННЕРИ КАМЕРА -->
             <div id="tab-scanner" class="tab-content">
                 <div class="panel" style="max-width: 650px; margin: 0 auto; text-align: center;">
                     <div class="panel-header" style="justify-content: center;">
@@ -525,7 +542,7 @@
                 </div>
             </div>
 
-            <!-- БАХШИ 4: ҲИСОБОТИ ДАВОМОТ -->
+            <!-- БАХШИ 5: ҲИСОБОТИ ДАВОМОТ -->
             <div id="tab-reports" class="tab-content">
                 <div class="panel">
                     <div class="panel-header">
@@ -564,9 +581,19 @@
                 <label>Интихоби фанҳо (Якчандторо интихоб кардан мумкин аст):</label>
                 <div class="checkbox-group">
                     <label><input type="checkbox" name="student-subject" value="Забони русӣ"> Забони русӣ (Иброҳими Аҳмадхон)</label>
-                    <label><input type="checkbox" name="student-subject" value="Забони англисӣ"> Забони англисӣ (Мирзозода Ҷумахон)</label>
+                    
+                    <!-- Англисӣ бо сатҳҳо -->
+                    <label><input type="checkbox" id="chk-english" name="student-subject" value="Забони англисӣ"> Забони англисӣ (Мирзозода Ҷумахон)</label>
+                    <div class="sub-levels-box" id="english-levels">
+                        <label><input type="checkbox" name="eng_level" value="Beginner"> Beginner</label>
+                        <label><input type="checkbox" name="eng_level" value="Elementary"> Elementary</label>
+                        <label><input type="checkbox" name="eng_level" value="Pre-Intermediate"> Pre-Intermediate</label>
+                        <label><input type="checkbox" name="eng_level" value="Intermediate"> Intermediate</label>
+                        <label><input type="checkbox" name="eng_level" value="Advanced"> Advanced</label>
+                    </div>
+
                     <label><input type="checkbox" name="student-subject" value="Забони чинӣ"> Забони чинӣ (Холов Рустам)</label>
-                    <label><input type="checkbox" name="student-subject" value="Компютер / IT"> Компютер / IT (Шарипов Ёқубҷон)</label>
+                    <label><input type="checkbox" name="student-subject" value="Компютер / IT"> Компьютер / IT (Шарипов Ёқубҷон)</label>
                 </div>
             </div>
             <div class="form-group">
@@ -580,7 +607,7 @@
         </div>
     </div>
 
-    <!-- МОДАЛ: ТАҲРИРИ МӮҲЛАТИ ПАРДОХТ (БО КАЛЕНДАРИИ ИНТИХОБИ СОЛ ВА РӮЗ) -->
+    <!-- МОДАЛ: ТАҲРИРИ МӮҲЛАТИ ПАРДОХТ -->
     <div class="modal" id="payModal">
         <div class="modal-content" style="text-align: left;">
             <h3>Танзими мӯҳлати пардохт</h3>
@@ -623,11 +650,14 @@
         document.getElementById('current-date').innerText = new Date().toLocaleDateString('tg-TJ', optionsDate);
 
         let students = JSON.parse(localStorage.getItem('mehrbor_students_pdf')) || [
-            { id: 'MHR-2379', name: 'Шарипов Ёқубҷон', subjects: ['Забони англисӣ', 'Забони чинӣ'], time: '14:00 - 15:30', status: 'absent', payStart: '2026-09-01', payEnd: '2027-01-01' }
+            { id: 'MHR-2379', name: 'Шарипов Ёқубҷон', subjects: ['Забони англисӣ (Beginner)', 'Забони чинӣ'], time: '14:00 - 15:30', status: 'absent', payStart: '2026-09-01', payEnd: '2027-01-01' }
         ];
 
         let reports = JSON.parse(localStorage.getItem('mehrbor_reports')) || [];
         let html5QrCode = null;
+
+        let lastScannedCode = '';
+        let lastScanTime = 0;
 
         function saveData() {
             localStorage.setItem('mehrbor_students_pdf', JSON.stringify(students));
@@ -790,8 +820,23 @@
             }
         }
 
+        function deleteStudent(id) {
+            if (confirm('Оё мехоҳед ин хонандаро нест кунед?')) {
+                students = students.filter(s => s.id !== id);
+                saveData();
+                renderAll();
+            }
+        }
+
         function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // Логикаи динамикии сатҳҳои англисӣ
+        const chkEnglish = document.getElementById('chk-english');
+        const englishLevels = document.getElementById('english-levels');
+        chkEnglish.addEventListener('change', function() {
+            englishLevels.style.display = this.checked ? 'block' : 'none';
+        });
 
         function addNewStudentWithQR() {
             const name = document.getElementById('student-name').value.trim();
@@ -799,7 +844,19 @@
             
             const selectedSubjects = [];
             document.querySelectorAll('input[name="student-subject"]:checked').forEach(cb => {
-                selectedSubjects.push(cb.value);
+                if (cb.id === 'chk-english') {
+                    const selectedLevels = [];
+                    document.querySelectorAll('input[name="eng_level"]:checked').forEach(lvl => {
+                        selectedLevels.push(lvl.value);
+                    });
+                    if (selectedLevels.length > 0) {
+                        selectedSubjects.push(`Забони англисӣ (${selectedLevels.join(', ')})`);
+                    } else {
+                        selectedSubjects.push('Забони англисӣ');
+                    }
+                } else {
+                    selectedSubjects.push(cb.value);
+                }
             });
 
             if (!name) { alert('Лутфан номи хонандаро ворид кунед!'); return; }
@@ -815,7 +872,8 @@
 
             showQRCode(newId, name);
             document.getElementById('student-name').value = '';
-            document.querySelectorAll('input[name="student-subject"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            englishLevels.style.display = 'none';
         }
 
         function showQRCode(id, name) {
@@ -843,7 +901,6 @@
             printSec.style.display = 'block';
             
             window.print();
-            
             setTimeout(() => {
                 printSec.style.display = 'none';
             }, 500);
@@ -854,91 +911,39 @@
                 alert('Ягон хонанда дар рӯйхат нест!');
                 return;
             }
-
-            const printSec = document.getElementById('print-section');
-            printSec.innerHTML = `<h2 style="text-align:center; margin-bottom: 20px;">QR-коди ҳамаи хонандагон - МЕҲРБОР ERP</h2>`;
-            
-            const gridDiv = document.createElement('div');
-            gridDiv.style.cssText = "display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;";
-
-            students.forEach((s, idx) => {
-                const card = document.createElement('div');
-                card.style.cssText = "border: 1px solid #000; padding: 15px; border-radius: 8px; text-align: center; width: 160px; margin-bottom: 15px;";
-                card.innerHTML = `
-                    <div id="print-qr-${idx}" style="display:flex; justify-content:center; margin-bottom:5px;"></div>
-                    <div style="font-size: 11px; font-weight: bold; color: #000;">${s.name}</div>
-                    <div style="font-size: 9px; color: #555;">ID: ${s.id}</div>
-                `;
-                gridDiv.appendChild(card);
-            });
-
-            printSec.appendChild(gridDiv);
-            printSec.style.display = 'block';
-
-            students.forEach((s, idx) => {
-                new QRCode(document.getElementById(`print-qr-${idx}`), {
-                    text: s.id,
-                    width: 100,
-                    height: 100,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            });
-
-            setTimeout(() => {
-                window.print();
-                setTimeout(() => {
-                    printSec.style.display = 'none';
-                }, 500);
-            }, 600);
+            window.print();
         }
 
-        function deleteStudent(id) {
-            if (confirm('Оё ин хонандаро нест кардан мехоҳед?')) {
-                students = students.filter(x => x.id !== id);
-                saveData();
-                renderAll();
-            }
-        }
-
+        // Сканнери камера
         function startCameraScanner() {
-            document.getElementById('reader').style.display = 'block';
             document.getElementById('start-scan-btn').style.display = 'none';
             document.getElementById('stop-scan-btn').style.display = 'inline-block';
+            document.getElementById('reader').style.display = 'block';
 
-            if (!html5QrCode) {
-                html5QrCode = new Html5Qrcode("reader");
-            }
+            html5QrCode = new Html5Qrcode("reader");
             html5QrCode.start(
-                { facingMode: "environment" }, 
-                { fps: 10, qrbox: 250 },
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
                 qrCodeMessage => {
                     handleSuccessfulScan(qrCodeMessage);
                 },
                 errorMessage => {}
             ).catch(err => {
-                console.log("Камера фаъол нашуд: ", err);
-                alert("Хатогӣ дар кушодани камера! Лутфан иҷозати камераро диҳед.");
+                alert("Хатогӣ дар кушодани камера: " + err);
+                stopCameraScanner();
             });
         }
 
         function stopCameraScanner() {
-            if (html5QrCode && html5QrCode.isScanning) {
+            if (html5QrCode) {
                 html5QrCode.stop().then(() => {
-                    document.getElementById('reader').style.display = 'none';
-                    document.getElementById('start-scan-btn').style.display = 'inline-block';
-                    document.getElementById('stop-scan-btn').style.display = 'none';
-                }).catch(err => console.фlog("Хатогӣ дар хомӯш кардани камера"));
-            } else {
-                document.getElementById('reader').style.display = 'none';
-                document.getElementById('start-scan-btn').style.display = 'inline-block';
-                document.getElementById('stop-scan-btn').style.display = 'none';
+                    html5QrCode.clear();
+                }).catch(err => console.log(err));
             }
+            document.getElementById('start-scan-btn').style.display = 'inline-block';
+            document.getElementById('stop-scan-btn').style.display = 'none';
+            document.getElementById('reader').style.display = 'none';
         }
-
-        let lastScannedCode = '';
-        let lastScanTime = 0;
 
         function handleSuccessfulScan(code) {
             const resBox = document.getElementById('scan-result');
