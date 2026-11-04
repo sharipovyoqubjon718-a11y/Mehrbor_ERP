@@ -353,7 +353,6 @@
             cursor: pointer;
         }
 
-        /* Услуби сатҳҳои англисӣ (Радио тугмаҳо) */
         .sub-levels-box {
             margin-left: 24px;
             margin-top: 6px;
@@ -430,7 +429,7 @@
 
         <div class="container">
             
-            <!-- БАХШИ 1: ДАШБОРД -->
+            <!-- ДАШБОРД -->
             <div id="tab-dashboard" class="tab-content active">
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -472,7 +471,7 @@
                 </div>
             </div>
 
-            <!-- БАХШИ 2: РӮЙХАТИ ХОНАНДАГОН -->
+            <!-- РӮЙХАТИ ХОНАНДАГОН -->
             <div id="tab-students" class="tab-content">
                 <div class="panel">
                     <div class="panel-header">
@@ -500,7 +499,7 @@
                 </div>
             </div>
 
-            <!-- БАХШИ 3: ПАРДОХТИ МОҲОНАҲО -->
+            <!-- ПАРДОХТИ МОҲОНАҲО -->
             <div id="tab-payments" class="tab-content">
                 <div class="panel">
                     <div class="panel-header">
@@ -524,7 +523,7 @@
                 </div>
             </div>
 
-            <!-- БАХШИ 4: СКАННЕРИ КАМЕРА -->
+            <!-- СКАННЕРИ КАМЕРА -->
             <div id="tab-scanner" class="tab-content">
                 <div class="panel" style="max-width: 650px; margin: 0 auto; text-align: center;">
                     <div class="panel-header" style="justify-content: center;">
@@ -542,7 +541,7 @@
                 </div>
             </div>
 
-            <!-- БАХШИ 5: ҲИСОБОТИ ДАВОМОТ -->
+            <!-- ҲИСОБОТИ ДАВОМОТ -->
             <div id="tab-reports" class="tab-content">
                 <div class="panel">
                     <div class="panel-header">
@@ -569,20 +568,20 @@
         </div>
     </main>
 
-    <!-- МОДАЛ: ИЛОВАИ ХОНАНДА -->
+    <!-- МОДАЛ: ИЛОВА ВА ТАҲРИРИ ХОНАНДА -->
     <div class="modal" id="addModal">
         <div class="modal-content" style="text-align: left;">
-            <h3>Иловаи хонандаи нав</h3>
+            <h3 id="modal-title">Иловаи хонандаи нав</h3>
+            <input type="hidden" id="edit-student-id">
             <div class="form-group">
                 <label>Ному насаби хонанда:</label>
                 <input type="text" id="student-name" placeholder="Масалан: Шарипов Ёқубҷон">
             </div>
             <div class="form-group">
-                <label>Интихоби фанҳо (Якчандторо интихоб кардан мумкин аст):</label>
+                <label>Интихоби фанҳо:</label>
                 <div class="checkbox-group">
                     <label><input type="checkbox" name="student-subject" value="Забони русӣ"> Забони русӣ (Иброҳими Аҳмадхон)</label>
                     
-                    <!-- Англисӣ бо радио-тугмаҳои левелҳо (танҳо 1то интихоб мешавад) -->
                     <label><input type="checkbox" id="chk-english" name="student-subject" value="Забони англисӣ"> Забони англисӣ (Мирзозода Ҷумахон)</label>
                     <div class="sub-levels-box" id="english-levels">
                         <label><input type="radio" name="eng_level" value="Beginner"> Beginner</label>
@@ -602,7 +601,7 @@
             </div>
             <div class="modal-buttons">
                 <button onclick="closeModal('addModal')" style="background: #475569; color: white;">Бекор кардан</button>
-                <button onclick="addNewStudentWithQR()">Захира кардан</button>
+                <button onclick="saveStudentData()" id="modal-save-btn">Захира кардан</button>
             </div>
         </div>
     </div>
@@ -728,7 +727,10 @@
                         <td>${subList}</td>
                         <td>${s.time}</td>
                         <td><button class="action-btn btn-qr" onclick="showQRCode('${s.id}', '${s.name}')">Дидани QR</button></td>
-                        <td><button class="action-btn btn-delete" onclick="deleteStudent('${s.id}')">Нест кардан</button></td>
+                        <td>
+                            <button class="action-btn btn-edit" onclick="openEditModal('${s.id}')">✏️ Иваз кардан</button>
+                            <button class="action-btn btn-delete" onclick="deleteStudent('${s.id}')">Нест кардан</button>
+                        </td>
                     </tr>
                 `;
             });
@@ -828,21 +830,66 @@
             }
         }
 
-        function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        // Логикаи динамикии сатҳҳои англисӣ
+        // Логикаи модалии илова ва таҳрир
         const chkEnglish = document.getElementById('chk-english');
         const englishLevels = document.getElementById('english-levels');
         chkEnglish.addEventListener('change', function() {
             englishLevels.style.display = this.checked ? 'block' : 'none';
             if (!this.checked) {
-                // Агар чекбокси англисӣ хомӯш шавад, левелҳои интихобшударо тоза мекунем
                 document.querySelectorAll('input[name="eng_level"]').forEach(r => r.checked = false);
             }
         });
 
-        function addNewStudentWithQR() {
+        function openAddModal() {
+            document.getElementById('modal-title').innerText = 'Иловаи хонандаи нав';
+            document.getElementById('edit-student-id').value = '';
+            document.getElementById('student-name').value = '';
+            document.getElementById('student-time').value = '14:00 - 15:30';
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('input[name="eng_level"]').forEach(r => r.checked = false);
+            englishLevels.style.display = 'none';
+            document.getElementById('addModal').style.display = 'flex';
+        }
+
+        function openEditModal(id) {
+            const student = students.find(s => s.id === id);
+            if (!student) return;
+
+            document.getElementById('modal-title').innerText = 'Иваз кардани маълумоти хонанда';
+            document.getElementById('edit-student-id').value = student.id;
+            document.getElementById('student-name').value = student.name;
+            document.getElementById('student-time').value = student.time;
+
+            // Тоза кардани интихобҳои пешина
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('input[name="eng_level"]').forEach(r => r.checked = false);
+            englishLevels.style.display = 'none';
+
+            // Қайд кардани фанҳои мавҷуда
+            student.subjects.forEach(sub => {
+                if (sub.includes('Забони англисӣ')) {
+                    chkEnglish.checked = true;
+                    englishLevels.style.display = 'block';
+                    // Санҷиши левел
+                    if (sub.includes('Beginner')) document.querySelector('input[value="Beginner"]').checked = true;
+                    if (sub.includes('Elementary')) document.querySelector('input[value="Elementary"]').checked = true;
+                    if (sub.includes('Pre-Intermediate')) document.querySelector('input[value="Pre-Intermediate"]').checked = true;
+                    if (sub.includes('Intermediate')) document.querySelector('input[value="Intermediate"]').checked = true;
+                    if (sub.includes('Advanced')) document.querySelector('input[value="Advanced"]').checked = true;
+                } else {
+                    document.querySelectorAll('input[name="student-subject"]').forEach(cb => {
+                        if (cb.value === sub) cb.checked = true;
+                    });
+                }
+            });
+
+            document.getElementById('addModal').style.display = 'flex';
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function saveStudentData() {
+            const editId = document.getElementById('edit-student-id').value;
             const name = document.getElementById('student-name').value.trim();
             const time = document.getElementById('student-time').value.trim();
             
@@ -863,19 +910,25 @@
             if (!name) { alert('Лутфан номи хонандаро ворид кунед!'); return; }
             if (selectedSubjects.length === 0) { alert('Лутфан ҳадди аққал як фанро интихоб кунед!'); return; }
 
-            const newId = 'MHR-' + Math.floor(1000 + Math.random() * 9000);
-            const newStudent = { id: newId, name, subjects: selectedSubjects, time, status: 'absent', payStart: '', payEnd: '' };
+            if (editId) {
+                // Таҳрири хонандаи мавҷуда
+                const student = students.find(s => s.id === editId);
+                if (student) {
+                    student.name = name;
+                    student.time = time;
+                    student.subjects = selectedSubjects;
+                }
+            } else {
+                // Илова кардани хонандаи нав
+                const newId = 'MHR-' + Math.floor(1000 + Math.random() * 9000);
+                const newStudent = { id: newId, name, subjects: selectedSubjects, time, status: 'absent', payStart: '', payEnd: '' };
+                students.push(newStudent);
+                showQRCode(newId, name);
+            }
 
-            students.push(newStudent);
             saveData();
             closeModal('addModal');
             renderAll();
-
-            showQRCode(newId, name);
-            document.getElementById('student-name').value = '';
-            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-            document.querySelectorAll('input[name="eng_level"]').forEach(r => r.checked = false);
-            englishLevels.style.display = 'none';
         }
 
         function showQRCode(id, name) {
