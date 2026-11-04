@@ -346,14 +346,14 @@
             margin-bottom: 0;
         }
 
-        .checkbox-group input[type="checkbox"] {
+        .checkbox-group input[type="checkbox"], .checkbox-group input[type="radio"] {
             width: 16px;
             height: 16px;
             accent-color: #ffcc00;
             cursor: pointer;
         }
 
-        /* Услуби сатҳҳои англисӣ */
+        /* Услуби сатҳҳои англисӣ (Радио тугмаҳо) */
         .sub-levels-box {
             margin-left: 24px;
             margin-top: 6px;
@@ -582,18 +582,18 @@
                 <div class="checkbox-group">
                     <label><input type="checkbox" name="student-subject" value="Забони русӣ"> Забони русӣ (Иброҳими Аҳмадхон)</label>
                     
-                    <!-- Англисӣ бо сатҳҳо -->
+                    <!-- Англисӣ бо радио-тугмаҳои левелҳо (танҳо 1то интихоб мешавад) -->
                     <label><input type="checkbox" id="chk-english" name="student-subject" value="Забони англисӣ"> Забони англисӣ (Мирзозода Ҷумахон)</label>
                     <div class="sub-levels-box" id="english-levels">
-                        <label><input type="checkbox" name="eng_level" value="Beginner"> Beginner</label>
-                        <label><input type="checkbox" name="eng_level" value="Elementary"> Elementary</label>
-                        <label><input type="checkbox" name="eng_level" value="Pre-Intermediate"> Pre-Intermediate</label>
-                        <label><input type="checkbox" name="eng_level" value="Intermediate"> Intermediate</label>
-                        <label><input type="checkbox" name="eng_level" value="Advanced"> Advanced</label>
+                        <label><input type="radio" name="eng_level" value="Beginner"> Beginner</label>
+                        <label><input type="radio" name="eng_level" value="Elementary"> Elementary</label>
+                        <label><input type="radio" name="eng_level" value="Pre-Intermediate"> Pre-Intermediate</label>
+                        <label><input type="radio" name="eng_level" value="Intermediate"> Intermediate</label>
+                        <label><input type="radio" name="eng_level" value="Advanced"> Advanced</label>
                     </div>
 
                     <label><input type="checkbox" name="student-subject" value="Забони чинӣ"> Забони чинӣ (Холов Рустам)</label>
-                    <label><input type="checkbox" name="student-subject" value="Компютер / IT"> Компьютер / IT (Шарипов Ёқубҷон)</label>
+                    <label><input type="checkbox" name="student-subject" value="Компьютер / IT"> Компьютер / IT (Шарипов Ёқубҷон)</label>
                 </div>
             </div>
             <div class="form-group">
@@ -836,6 +836,10 @@
         const englishLevels = document.getElementById('english-levels');
         chkEnglish.addEventListener('change', function() {
             englishLevels.style.display = this.checked ? 'block' : 'none';
+            if (!this.checked) {
+                // Агар чекбокси англисӣ хомӯш шавад, левелҳои интихобшударо тоза мекунем
+                document.querySelectorAll('input[name="eng_level"]').forEach(r => r.checked = false);
+            }
         });
 
         function addNewStudentWithQR() {
@@ -845,12 +849,9 @@
             const selectedSubjects = [];
             document.querySelectorAll('input[name="student-subject"]:checked').forEach(cb => {
                 if (cb.id === 'chk-english') {
-                    const selectedLevels = [];
-                    document.querySelectorAll('input[name="eng_level"]:checked').forEach(lvl => {
-                        selectedLevels.push(lvl.value);
-                    });
-                    if (selectedLevels.length > 0) {
-                        selectedSubjects.push(`Забони англисӣ (${selectedLevels.join(', ')})`);
+                    const selectedLevel = document.querySelector('input[name="eng_level"]:checked');
+                    if (selectedLevel) {
+                        selectedSubjects.push(`Забони англисӣ (${selectedLevel.value})`);
                     } else {
                         selectedSubjects.push('Забони англисӣ');
                     }
@@ -873,6 +874,7 @@
             showQRCode(newId, name);
             document.getElementById('student-name').value = '';
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('input[name="eng_level"]').forEach(r => r.checked = false);
             englishLevels.style.display = 'none';
         }
 
